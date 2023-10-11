@@ -1,0 +1,2 @@
+class GetChapterFailed(Exception):
+    pass
