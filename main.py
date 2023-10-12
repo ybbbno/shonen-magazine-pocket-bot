@@ -1,11 +1,23 @@
-import asyncio
-from getchapter import GetChapter
-from exception import GetChapterFailed
+from os import getenv
+from time import sleep
+from dotenv import load_dotenv
+from origamibot import OrigamiBot
+from botscommands import BotsCommands
 
-async def main():
-    try:
-        print(await GetChapter('14079602755231591802', data["email_address"], data["password"]))
-    except GetChapterFailed as e:
-        print(e)
+# 14079602755231591802
 
-asyncio.run(main())
+if __name__ == '__main__':
+    load_dotenv()
+    data = {
+        "email_address": getenv("EMAIL_ADDRESS"),
+        "password": getenv("PASSWORD")
+    }
+
+    token = getenv("TOKEN")
+    bot = OrigamiBot(token)
+
+    bot.add_commands(BotsCommands(bot, data))
+
+    bot.start()
+    while True:
+        sleep(1)
