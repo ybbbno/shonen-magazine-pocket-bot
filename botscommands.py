@@ -1,9 +1,10 @@
+import asyncio
 from math import ceil
 
 from origamibot import OrigamiBot
 from origamibot.types import InputMediaPhoto
 
-from not_async_getchapter import GetChapter
+from getchapter import GetChapter
 from exception import GetChapterFailed
 
 class BotsCommands:
@@ -14,7 +15,7 @@ class BotsCommands:
     def get_chapter(self, message, value: str):
         print('Trying check chapter..')
 
-        try: msg = GetChapter(value, self.data["email_address"], self.data["password"])
+        try: msg = asyncio.run(GetChapter(value, self.data["email_address"], self.data["password"]))
         except GetChapterFailed as e:
             self.bot.send_message(message.chat.id, str(e))
             return
