@@ -1,5 +1,5 @@
 import asyncio
-from math import ceil
+from math import ceil, floor
 
 from origamibot import OrigamiBot
 from origamibot.types import InputMediaPhoto
@@ -28,8 +28,13 @@ class BotsCommands:
             input_medias.append(InputMediaPhoto(media=item,
                                                 caption=str(i+1),
                                                 parse_mode='html'))
-
-        for i in range(ceil(len(msg[2])/10)):
+        
+        for_range = ceil(len(input_medias)/10) if len(input_medias)-floor(len(input_medias)/10)*10 != 1 else floor(len(input_medias)/10)
+            
+        for i in range(for_range):
             self.bot.send_media_group(message.chat.id, media=input_medias[i*10:(i+1)*10])
+        
+        if len(input_medias)-floor(len(input_medias)/10)*10 == 1:
+            self.bot.send_photo(message.chat.id, input_medias[-1].media, input_medias[-1].caption)
 
         print('Completed')
