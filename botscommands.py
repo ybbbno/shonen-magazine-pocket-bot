@@ -1,4 +1,5 @@
 import asyncio
+from loguru import logger
 from math import ceil, floor
 
 from origamibot import OrigamiBot
@@ -13,28 +14,32 @@ class BotsCommands:
         self.data = data
 
     def get_chapter(self, message, value: str):
-        print('Trying check chapter..')
+        logger.info("Trying get chapter "+value+" for "+message.from_user.username+"..")
 
-        try: msg = asyncio.run(GetChapter(value, self.data["email_address"], self.data["password"]))
-        except GetChapterFailed as e:
-            self.bot.send_message(message.chat.id, str(e))
-            return
-        
-        input_medias = []
+        try:
+            try: msg = asyncio.run(GetChapter(value, self.data["email_address"], self.data["password"]))
+            except GetChapterFailed as e:
+                logger.error("Failed to get chapter: "+str(e))
+                self.bot.send_message(message.chat.id, str(e))
+                return
             
-        self.bot.send_message(message.chat.id, msg[0]+' - '+msg[1])
+            input_medias = []
+                
+            self.bot.send_message(message.chat.id, msg[0]+' - '+msg[1])
+                
+            for i, item in enumerate(msg[2]):
+                input_medias.append(InputMediaPhoto(media=item,
+                                                    caption=str(i+1),
+                                                    parse_mode='html'))
             
-        for i, item in enumerate(msg[2]):
-            input_medias.append(InputMediaPhoto(media=item,
-                                                caption=str(i+1),
-                                                parse_mode='html'))
-        
-        for_range = ceil(len(input_medias)/10) if len(input_medias)-floor(len(input_medias)/10)*10 != 1 else floor(len(input_medias)/10)
+            for_range = ceil(len(input_medias)/10) if len(input_medias)-floor(len(input_medias)/10)*10 != 1 else floor(len(input_medias)/10)
+                
+            for i in range(for_range):
+                self.bot.send_media_group(message.chat.id, media=input_medias[i*10:(i+1)*10])
             
-        for i in range(for_range):
-            self.bot.send_media_group(message.chat.id, media=input_medias[i*10:(i+1)*10])
-        
-        if len(input_medias)-floor(len(input_medias)/10)*10 == 1:
-            self.bot.send_photo(message.chat.id, input_medias[-1].media, input_medias[-1].caption)
+            if len(input_medias)-floor(len(input_medias)/10)*10 == 1:
+                self.bot.send_photo(message.chat.id, input_medias[-1].media, input_medias[-1].caption)
 
-        print('Completed')
+            logger.info("Succesfully sended chapter "+value+" with "+str(len(input_medias))+" pages")
+        except Exception as e:
+            logger.error("Failed to get chapter: "+str(e))
