@@ -31,7 +31,7 @@ class BotsCommands:
                 input_medias.append(InputMediaPhoto(media=item,
                                                     caption=str(i+1),
                                                     parse_mode='html'))
-            
+
             for_range = ceil(len(input_medias)/10) if len(input_medias)-floor(len(input_medias)/10)*10 != 1 else floor(len(input_medias)/10)
                 
             for i in range(for_range):
@@ -42,4 +42,5 @@ class BotsCommands:
 
             logger.info("Succesfully sended chapter "+value+" with "+str(len(input_medias))+" pages")
         except Exception as e:
+            self.bot.send_message(message.chat.id, "Some issues with a bot..")
             logger.error("Failed to get chapter: "+str(e))
